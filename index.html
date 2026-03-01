@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Government Exam Key</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family: 'Segoe UI', sans-serif;
+}
+
+body{
+background:#ffffff;
+color:#222;
+min-height:100vh;
+display:flex;
+flex-direction:column;
+}
+
+header{
+text-align:center;
+padding:40px 20px 20px;
+font-size:28px;
+font-weight:600;
+display:flex;
+justify-content:center;
+align-items:center;
+gap:10px;
+}
+
+header img{
+width:30px;
+height:30px;
+}
+
+.container{
+display:grid;
+
+gap:40px;
+padding:40px;
+max-width:1100px;
+margin:auto;
+}
+
+.card{
+background:#fff;
+padding:20px;
+border-radius:20px;
+box-shadow:0 10px 30px rgba(0,0,0,0.08);
+text-align:center;
+animation:float 4s ease-in-out infinite;
+transition:transform .3s;
+}
+
+.card:hover{
+transform:translateY(-5px);
+}
+
+.card img{
+width:100%;
+border-radius:15px;
+margin-bottom:20px;
+}
+
+.btn{
+padding:12px 20px;
+border:none;
+border-radius:30px;
+background:#111;
+color:#fff;
+cursor:pointer;
+font-size:15px;
+transition:.3s;
+animation:btnFloat 3s ease-in-out infinite;
+}
+
+.btn:hover{
+background:#444;
+}
+
+@keyframes float{
+0%,100%{transform:translateY(0px);}
+50%{transform:translateY(-10px);}
+}
+
+@keyframes btnFloat{
+0%,100%{transform:translateY(0px);}
+50%{transform:translateY(-4px);}
+}
+
+/* MODAL */
+.overlay{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.4);
+backdrop-filter:blur(5px);
+display:flex;
+justify-content:center;
+align-items:center;
+opacity:0;
+pointer-events:none;
+transition:.3s;
+}
+
+.overlay.active{
+opacity:1;
+pointer-events:auto;
+}
+
+.modal{
+background:#fff;
+padding:30px;
+border-radius:20px;
+width:90%;
+max-width:400px;
+box-shadow:0 20px 40px rgba(0,0,0,0.2);
+animation:scaleIn .3s ease;
+text-align:center;
+}
+
+@keyframes scaleIn{
+from{transform:scale(.8);opacity:0;}
+to{transform:scale(1);opacity:1;}
+}
+
+.modal h2{
+margin-bottom:10px;
+}
+
+.modal p{
+margin-bottom:10px;
+font-size:14px;
+}
+
+.timer{
+font-size:20px;
+font-weight:bold;
+margin:15px 0;
+}
+
+.modal button{
+margin-top:10px;
+width:100%;
+padding:12px;
+border:none;
+border-radius:30px;
+cursor:pointer;
+font-size:14px;
+}
+
+.confirm{
+background:#111;
+color:#fff;
+}
+
+.cancel{
+background:#eee;
+margin-top:8px;
+}
+
+.loading{
+position:fixed;
+inset:0;
+background:#fff;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:20px;
+font-weight:500;
+opacity:0;
+pointer-events:none;
+transition:.3s;
+}
+
+.loading.active{
+opacity:1;
+pointer-events:auto;
+}
+
+footer{
+text-align:center;
+padding:30px 10px;
+font-size:13px;
+color:#999;
+margin-top:auto;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+Government Exam Key
+<img src="icon.png" alt="icon">
+</header>
+
+<div class="container">
+<div class="card">
+<img src="image.jpg">
+<button class="btn" onclick="startProcess()">Get Exam Key</button>
+</div>
+
+<div class="card">
+<img src="image1.jpg">
+<button class="btn" onclick="startProcess()">Get Exam Key</button>
+</div>
+
+<div class="card">
+<img src="image2.jpg">
+<button class="btn" onclick="startProcess()">Get Exam Key</button>
+</div>
+
+<div class="card">
+<img src="image3.jpg">
+<button class="btn" onclick="startProcess()">Get Exam Key</button>
+</div>
+</div>
+
+<!-- Loading -->
+<div class="loading" id="loading">
+Loading...
+</div>
+
+<!-- Payment Modal -->
+<div class="overlay" id="paymentModal">
+<div class="modal">
+<h2>PAY YOU</h2>
+<p>Amount: ₦3000</p>
+<p>Account Name: DEMO-12345</p>
+<p>Account Number: 123456789</p>
+<p>Bank: Kuda</p>
+
+<div class="timer" id="countdown">10:00</div>
+
+<button class="confirm" onclick="confirmPayment()">Confirm Payment</button>
+<button class="cancel" onclick="closePayment()">Cancel</button>
+</div>
+</div>
+
+<!-- Selection Modal -->
+<div class="overlay" id="examModal">
+<div class="modal">
+<h2>Select Exam</h2>
+
+<button class="confirm" onclick="redirectWhatsApp('WAEC')">For WAEC</button>
+<button class="confirm" onclick="redirectWhatsApp('JAMB')">For JAMB</button>
+<button class="confirm" onclick="redirectWhatsApp('NECO')">For NECO</button>
+<button class="confirm" onclick="redirectWhatsApp('NABTAB')">For NABTAB</button>
+
+<button class="cancel" onclick="closeExam()">Cancel</button>
+</div>
+</div>
+
+<footer>
+copyright ©️ 2026 gov.ng
+</footer>
+
+<script>
+let timerInterval;
+let timeLeft = 600;
+
+function startProcess(){
+showLoading(2000,()=>{
+openPayment();
+});
+}
+
+function showLoading(duration,callback){
+const loading=document.getElementById("loading");
+loading.classList.add("active");
+setTimeout(()=>{
+loading.classList.remove("active");
+callback();
+},duration);
+}
+
+function openPayment(){
+document.getElementById("paymentModal").classList.add("active");
+startTimer();
+}
+
+function closePayment(){
+document.getElementById("paymentModal").classList.remove("active");
+clearInterval(timerInterval);
+resetTimer();
+}
+
+function startTimer(){
+timeLeft=600;
+updateTimer();
+timerInterval=setInterval(()=>{
+timeLeft--;
+updateTimer();
+if(timeLeft<=0){
+closePayment();
+}
+},1000);
+}
+
+function updateTimer(){
+let minutes=Math.floor(timeLeft/60);
+let seconds=timeLeft%60;
+document.getElementById("countdown").innerText=
+`${minutes}:${seconds<10?'0':''}${seconds}`;
+}
+
+function resetTimer(){
+timeLeft=600;
+updateTimer();
+}
+
+function confirmPayment(){
+closePayment();
+document.getElementById("examModal").classList.add("active");
+}
+
+function closeExam(){
+document.getElementById("examModal").classList.remove("active");
+}
+
+function redirectWhatsApp(exam){
+showLoading(1000,()=>{
+let message=`I want to confirm payment for ${exam}, here is my payment proof.`;
+let encoded=encodeURIComponent(message);
+window.location.href=`https://wa.me/2349032292949?text=${encoded}`;
+});
+}
+
+</script>
+</body>
+</html>
