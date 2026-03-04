@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Government Exam Key - JAMB</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+body{background:#ffffff;color:#222;overflow-x:hidden;}
+
+header{
+display:flex;justify-content:center;align-items:center;
+gap:10px;padding:25px 20px;font-size:26px;font-weight:600;
+}
+header img{width:35px;height:35px;}
+
+.search-container{display:flex;justify-content:center;margin-bottom:30px;}
+.search-container input{
+width:90%;max-width:400px;padding:12px 20px;border-radius:30px;
+border:1px solid #ddd;outline:none;font-size:14px;transition:0.3s;
+}
+.search-container input:focus{
+border-color:#0077ff;box-shadow:0 0 10px rgba(0,119,255,0.15);
+}
+
+.grid{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:25px;padding:20px;max-width:1000px;margin:auto;
+}
+
+.card{
+background:#fff;border-radius:18px;padding:25px;
+box-shadow:0 10px 25px rgba(0,0,0,0.06);
+text-align:center;position:relative;
+animation:float 4s ease-in-out infinite;transition:0.3s;
+cursor:pointer;
+}
+.card:hover{
+transform:translateY(-6px);
+box-shadow:0 15px 35px rgba(0,0,0,0.1);
+}
+
+@keyframes float{
+0%,100%{transform:translateY(0px);}
+50%{transform:translateY(-8px);}
+}
+
+.badge{
+position:absolute;top:15px;right:15px;
+background:#0077ff;color:#fff;font-size:11px;
+padding:5px 10px;border-radius:20px;
+}
+
+.card h3{margin-bottom:10px;}
+.card p{font-size:13px;color:#777;margin-bottom:20px;}
+
+.btn{
+padding:10px 22px;border:none;border-radius:25px;
+background:#0077ff;color:#fff;cursor:pointer;
+transition:0.3s;text-decoration:none;display:inline-block;
+}
+.btn:hover{background:#005edb;}
+
+.modal{
+position:fixed;top:0;left:0;width:100%;height:100%;
+background:rgba(0,0,0,0.4);
+display:flex;justify-content:center;align-items:center;
+opacity:0;pointer-events:none;transition:0.3s;
+}
+.modal.active{opacity:1;pointer-events:auto;}
+
+.modal-box{
+background:#fff;padding:30px;border-radius:20px;
+text-align:center;max-width:400px;width:90%;
+transform:scale(0.9);transition:0.3s;
+}
+.modal.active .modal-box{transform:scale(1);}
+
+.loading{
+position:fixed;top:0;left:0;width:100%;height:100%;
+background:#fff;display:flex;justify-content:center;align-items:center;
+font-size:18px;font-weight:500;
+opacity:0;pointer-events:none;transition:0.3s;
+}
+.loading.active{opacity:1;pointer-events:auto;}
+
+footer{
+text-align:center;padding:30px 20px;
+font-size:13px;color:#777;margin-top:40px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+Government Exam Key
+<img src="icon.png" alt="icon">
+</header>
+
+<div class="search-container">
+<input type="text" id="search" placeholder="Search subject...">
+</div>
+
+<div class="grid" id="mainGrid">
+
+<!-- English -->
+<div class="card"
+data-subject="English"
+data-files='[
+{"name":"Paper 1","file":"English_Paper1.pdf"},
+{"name":"Paper 2","file":"English_Paper2.pdf"},
+{"name":"CBT Version","file":"English_CBT.pdf"}
+]'>
+<span class="badge">Updated 2026</span>
+<h3>English</h3>
+<p>Download Official JAMB Key</p>
+</div>
+
+<!-- Mathematics -->
+<div class="card"
+data-subject="Mathematics"
+data-files='[
+{"name":"Paper 1","file":"Mathematics_Paper1.pdf"},
+{"name":"Paper 2","file":"Mathematics_Paper2.pdf"},
+{"name":"CBT Version","file":"Mathematics_CBT.pdf"}
+]'>
+<span class="badge">Updated 2026</span>
+<h3>Mathematics</h3>
+<p>Download Official JAMB Key</p>
+</div>
+
+<!-- General Subjects Button -->
+<div class="card" id="generalBtn">
+<span class="badge">Updated 2026</span>
+<h3>General Subjects</h3>
+<p>Explore All Other Subjects</p>
+</div>
+
+</div>
+
+<!-- GENERAL SUBJECT GRID -->
+<div class="grid" id="generalGrid" style="display:none;"></div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+<div class="modal-box">
+<h2 id="modalTitle"></h2>
+<div id="modalContent"></div>
+<br>
+<button class="btn" onclick="closeModal()">Close</button>
+</div>
+</div>
+
+<!-- LOADING -->
+<div class="loading" id="loading">Loading...</div>
+
+<footer>
+copyright ©️ 2026 gov.ng
+</footer>
+
+<script>
+
+/* GENERAL SUBJECT LIST */
+const subjects = [
+"Physics","Chemistry","Biology","Agricultural Science",
+"Economics","Government","Commerce","Geography",
+"Literature in English","CRS","IRS","History",
+"Accounting","Business Studies","Computer Studies",
+"Civic Education","Insurance",
+"Hausa","Yoruba","Igbo","French","Arabic"
+];
+
+const generalGrid = document.getElementById("generalGrid");
+
+/* CREATE MULTI-PDF FOR ALL GENERAL SUBJECTS */
+subjects.forEach(sub=>{
+let clean = sub.replace(/\s+/g,'');
+generalGrid.innerHTML += `
+<div class="card"
+data-subject="${sub}"
+data-files='[
+{"name":"Paper 1","file":"${clean}_Paper1.pdf"},
+{"name":"Paper 2","file":"${clean}_Paper2.pdf"},
+{"name":"CBT Version","file":"${clean}_CBT.pdf"}
+]'>
+<span class="badge">Updated 2026</span>
+<h3>${sub}</h3>
+<p>Download Official JAMB Key</p>
+</div>
+`;
+});
+
+/* LOADING */
+const loading = document.getElementById("loading");
+function showLoading(callback){
+loading.classList.add("active");
+setTimeout(()=>{
+loading.classList.remove("active");
+callback();
+},1000);
+}
+
+/* MODAL */
+const modal = document.getElementById("modal");
+const modalTitle = document.getElementById("modalTitle");
+const modalContent = document.getElementById("modalContent");
+
+function openModal(subject,files){
+modalTitle.textContent = subject;
+modalContent.innerHTML = "";
+
+files.forEach(item=>{
+let link = document.createElement("a");
+link.href = item.file;
+link.download = item.file;
+link.textContent = "Download " + item.name;
+link.className = "btn";
+link.style.display = "block";
+link.style.margin = "10px auto";
+
+link.addEventListener("click", function(e){
+e.stopPropagation(); // VERY IMPORTANT
+});
+
+modalContent.appendChild(link);
+});
+
+modal.classList.add("active");
+}
+
+function closeModal(){
+modal.classList.remove("active");
+}
+
+/* CARD CLICK (FIXED SAFE VERSION) */
+document.addEventListener("click",function(e){
+
+// Ignore clicks inside modal
+if(e.target.closest(".modal")) return;
+
+// Handle subject cards
+let card = e.target.closest(".card");
+
+if(card && card.dataset.subject){
+
+let subject = card.dataset.subject;
+let files = JSON.parse(card.dataset.files);
+
+showLoading(()=>{
+openModal(subject,files);
+});
+
+}
+});
+
+/* GENERAL BUTTON (SAFE FIX) */
+document.getElementById("generalBtn").addEventListener("click",function(e){
+e.stopPropagation();
+showLoading(()=>{
+generalGrid.style.display="grid";
+window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+});
+});
+
+/* SEARCH */
+document.getElementById("search").addEventListener("input",function(){
+let value = this.value.toLowerCase();
+document.querySelectorAll(".card").forEach(card=>{
+let text = card.textContent.toLowerCase();
+card.style.display = text.includes(value) ? "block" : "none";
+});
+});
+
+</script>
+</body>
+</html>
