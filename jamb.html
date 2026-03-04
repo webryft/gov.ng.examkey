@@ -207,40 +207,128 @@ const modal = document.getElementById("modal");
 const modalTitle = document.getElementById("modalTitle");
 const modalContent = document.getElementById("modalContent");
 
+/* SAFE CLOSE FUNCTION */
+function closeModal(){
+modal.classList.remove("active");
+}
+
+/* CLOSE WHEN CLICK OUTSIDE */
+modal.addEventListener("click", function(e){
+if(e.target === modal){
+closeModal();
+}
+});
+
+/* CLOSE ON ESC KEY */
+document.addEventListener("keydown", function(e){
+if(e.key === "Escape"){
+closeModal();
+}
+});
+
 function openModal(subject,files){
 modalTitle.textContent = subject;
 modalContent.innerHTML = "";
 
 files.forEach(item=>{
-let link = document.createElement("a");
-link.href = item.file;
-link.download = item.file;
-link.textContent = "Download " + item.name;
-link.className = "btn";
-link.style.display = "block";
-link.style.margin = "10px auto";
 
-link.addEventListener("click", function(e){
-e.stopPropagation(); // VERY IMPORTANT
+let container = document.createElement("div");
+container.style.marginBottom = "15px";
+
+let button = document.createElement("button");
+button.textContent = "Download " + item.name;
+button.className = "btn";
+button.style.display = "block";
+button.style.margin = "10px auto";
+
+let progressBar = document.createElement("div");
+progressBar.style.height = "6px";
+progressBar.style.background = "#eee";
+progressBar.style.borderRadius = "10px";
+progressBar.style.marginTop = "8px";
+progressBar.style.overflow = "hidden";
+
+let progressFill = document.createElement("div");
+progressFill.style.height = "100%";
+progressFill.style.width = "0%";
+progressFill.style.background = "#0077ff";
+progressFill.style.transition = "width 0.3s";
+
+progressBar.appendChild(progressFill);
+
+button.addEventListener("click", async function(e){
+e.stopPropagation();
+progressFill.style.width = "0%";
+
+try{
+const response = await fetch(item.file);
+
+if(!response.ok) throw new Error("File not found");
+
+/* Fallback if stream not supported */
+if(!response.body){
+progressFill.style.width = "100%";
+const blob = await response.blob();
+triggerDownload(blob, item.file);
+return;
+}
+
+const contentLength = response.headers.get('content-length');
+const reader = response.body.getReader();
+let receivedLength = 0;
+let chunks = [];
+
+while(true){
+const {done, value} = await reader.read();
+if(done) break;
+chunks.push(value);
+receivedLength += value.length;
+
+if(contentLength){
+let percent = Math.round((receivedLength / contentLength) * 100);
+progressFill.style.width = percent + "%";
+}
+}
+
+if(!contentLength){
+progressFill.style.width = "100%";
+}
+
+const blob = new Blob(chunks);
+triggerDownload(blob, item.file);
+
+}catch(err){
+alert("Download failed. Check file path or host properly.");
+progressFill.style.width = "0%";
+}
 });
 
-modalContent.appendChild(link);
+container.appendChild(button);
+container.appendChild(progressBar);
+modalContent.appendChild(container);
+
 });
 
 modal.classList.add("active");
 }
 
-function closeModal(){
-modal.classList.remove("active");
+/* DOWNLOAD TRIGGER FUNCTION */
+function triggerDownload(blob, filename){
+const url = window.URL.createObjectURL(blob);
+const a = document.createElement("a");
+a.href = url;
+a.download = filename;
+document.body.appendChild(a);
+a.click();
+a.remove();
+window.URL.revokeObjectURL(url);
 }
 
-/* CARD CLICK (FIXED SAFE VERSION) */
+/* CARD CLICK */
 document.addEventListener("click",function(e){
 
-// Ignore clicks inside modal
 if(e.target.closest(".modal")) return;
 
-// Handle subject cards
 let card = e.target.closest(".card");
 
 if(card && card.dataset.subject){
@@ -255,7 +343,7 @@ openModal(subject,files);
 }
 });
 
-/* GENERAL BUTTON (SAFE FIX) */
+/* GENERAL BUTTON */
 document.getElementById("generalBtn").addEventListener("click",function(e){
 e.stopPropagation();
 showLoading(()=>{
